@@ -28,7 +28,7 @@ library(spatialreg)
 library(geojsonio)
 
 
-final_data <- st_read('output/그리드 전처리 완료/analysis4_dataset_0524.geojson')
+final_data <- st_read('output/그리드 전처리 완료/analysis1_dataset.geojson')
 # final_data <- st_read('output/그리드 전처리 완료/analysispo_dataset.geojson')
 
 final_data %>% head(5)
@@ -87,9 +87,10 @@ exp(lm_poisson.step$coefficients)
 
 
 ## 음이항회귀분석
+
 lm_nb <- glm.nb(acci_cnt~., data=dat)
 summary(lm_nb)
-
+# warnings()
 
 ## 2030val 신호등 버스저녁하차 생활서비스 소매점 음식점 퇴근시간자전거 
 lm_nb.step <- step(lm_nb, direction='both')
@@ -109,9 +110,38 @@ set <- data.frame(set) %>% dplyr::select(-c(gid))
 #set <- data.frame(set) %>% dplyr::select(-c(acci_cnt))
 set
 
-pre <- predict.glm(lm_nb.step,set)
+
+
+
+
+
+
+
+pre <- predict(lm_nb.step, newdata=set,interval="prediction")
 pre <- as.data.frame(pre)
 head(pre)
 
 
+final_data$lm_nb.step<-lm_nb.step$fitted.values 
+
+write.csv(final_data,"output/그리드 전처리 완료/negativeregression_result.csv")
+
+
 write.csv(pre,"output/그리드 전처리 완료/negativeregression.csv")
+
+
+
+
+
+nb1 <- glm(acci_cnt~., data=dat, family = quasipoisson())
+summary(nb1)
+# warnings()
+
+## 2030val 신호등 버스저녁하차 생활서비스 소매점 음식점 퇴근시간자전거 
+nb1.step <- step(nb1, direction='both')
+summary(nb1.step)
+
+exp(coef(nb1.step))
+
+exp(nb1.step$coefficients)
+
