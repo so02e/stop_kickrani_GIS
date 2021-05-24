@@ -28,7 +28,9 @@ library(spatialreg)
 library(geojsonio)
 
 
-final_data <- st_read('output/그리드 전처리 완료/analysispo_dataset.geojson')
+final_data <- st_read('output/그리드 전처리 완료/analysis4_dataset_0524.geojson')
+# final_data <- st_read('output/그리드 전처리 완료/analysispo_dataset.geojson')
+
 final_data %>% head(5)
 
 
@@ -93,10 +95,23 @@ summary(lm_nb)
 lm_nb.step <- step(lm_nb, direction='both')
 summary(lm_nb.step)
 
+exp(coef(lm_nb.step))
 
 exp(lm_nb.step$coefficients)
 
 
 
+set = read.csv('output/그리드 전처리 완료/final4_0524.csv',sep = ",",header = TRUE)
+set
+
+set <- data.frame(set) %>% dplyr::select(-c(gid))
+
+#set <- data.frame(set) %>% dplyr::select(-c(acci_cnt))
+set
+
+pre <- predict.glm(lm_nb.step,set)
+pre <- as.data.frame(pre)
+head(pre)
 
 
+write.csv(pre,"output/그리드 전처리 완료/negativeregression.csv")
